@@ -1,6 +1,6 @@
 /private
-/example
-/faces_4
 /bin
+nbproject
+.idea
 *~
 *.sw[op]

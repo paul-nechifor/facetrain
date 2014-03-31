@@ -1,6 +1,15 @@
 CFLAGS=-g -I.
 LFLAGS=
 
+all: facetrain hidtopgm outtopgm facetrain_init0
+	rm -fr ../bin
+	mkdir ../bin
+	mv facetrain ../bin
+	mv hidtopgm ../bin
+	mv outtopgm ../bin
+	mv facetrain_init0 ../bin
+	rm *.o
+
 facetrain: facetrain.o imagenet.o backprop_initr.o pgmimage.o
 	$(CC) ${LFLAGS} facetrain.o imagenet.o backprop_initr.o pgmimage.o \
 	      -o facetrain -lm

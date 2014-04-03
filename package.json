@@ -1,0 +1,8 @@
+{
+  "name": "facetrain",
+  "version": "0.0.0",
+  "main": "lib",
+  "scripts": {
+    "preinstall": "bash preinstall.sh"
+  }
+}

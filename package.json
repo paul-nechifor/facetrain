@@ -4,5 +4,9 @@
   "main": "lib",
   "scripts": {
     "preinstall": "bash preinstall.sh"
+  },
+  "dependencies": {
+    "findit": "^1.1.1",
+    "tmp": "0.0.23"
   }
 }

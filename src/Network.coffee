@@ -5,7 +5,25 @@ byline = require 'byline'
 module.exports = class Network
   constructor: (@facetrain) ->
     @networkFile = null
-    @performance = []
+    @performance =
+      epoch: []
+      delta: []
+      trainperf: []
+      trainerr: []
+      t1perf: []
+      t1err: []
+      t2perf: []
+      t2err: []
+    @performanceList = [
+      @performance.epoch
+      @performance.delta
+      @performance.trainperf
+      @performance.trainerr
+      @performance.t1perf
+      @performance.t1err
+      @performance.t2perf
+      @performance.t2err
+    ]
     @lineInterpreters =
       performance: @onPerformance.bind this
 
@@ -41,6 +59,6 @@ module.exports = class Network
     @lineInterpreters[type]? data
 
   onPerformance: (data) ->
-    # <epoch> <delta> <trainperf> <trainerr> <t1perf> <t1err> <t2perf> <t2err>
     numbers = data.trim().split(' ').map (n) -> Number(n)
-    @performance.push numbers
+    for number, i in numbers
+      @performanceList[i].push number

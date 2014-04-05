@@ -1,6 +1,7 @@
 /private
 /bin
 /lib
+/examples/images
 nbproject
 node_modules
 .idea

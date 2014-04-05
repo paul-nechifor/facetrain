@@ -4,7 +4,7 @@ String::endsWith = (suffix) ->
 module.exports = class OptionSet
   constructor: ->
     @values =
-      imagesDir: '../faces'
+      imagesDir: __dirname + '/../faces'
       fileFilter: (path) -> path.endsWith '.pgm'
       scale: 4
       filters: []

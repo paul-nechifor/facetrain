@@ -41,7 +41,7 @@ module.exports = class Network
     args.push '-1', @facetrain.imageSets[1].path
     args.push '-2', @facetrain.imageSets[2].path
 
-    program = spawn '../bin/facetrain', args
+    program = spawn __dirname + '/../bin/facetrain', args
 
     lineStream = byline.createStream program.stdout
     lineStream.on 'data', @interpretLine.bind this
@@ -62,3 +62,10 @@ module.exports = class Network
     numbers = data.trim().split(' ').map (n) -> Number(n)
     for number, i in numbers
       @performanceList[i].push number
+
+  pythonPlot: (script, image, data, cb) ->
+    prg = spawn 'python2', [script, image]
+    prg.stdin.end data
+    prg.on 'close', (code) ->
+      return cb 'err-' + code unless code is 0
+      cb()

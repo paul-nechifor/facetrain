@@ -1,9 +1,13 @@
 tmp = require 'tmp'
 {spawn} = require 'child_process'
+byline = require 'byline'
 
 module.exports = class Network
   constructor: (@facetrain) ->
     @networkFile = null
+    @performance = []
+    @lineInterpreters =
+      performance: @onPerformance.bind this
 
   train: (cb) ->
     tmp.dir (err, path) =>
@@ -21,9 +25,22 @@ module.exports = class Network
 
     program = spawn '../bin/facetrain', args
 
-    program.stdout.on 'data', (data) ->
-      console.log data + ''
+    lineStream = byline.createStream program.stdout
+    lineStream.on 'data', @interpretLine.bind this
 
     program.on 'close', (code) ->
       return cb 'err-' + code unless code is 0
       cb()
+
+  interpretLine: (line) ->
+    line = line.toString()
+    start = line.indexOf '>>>'
+    return if start is -1
+    type = line.substring 0, start
+    data = line.substring start + 4, line.length
+    @lineInterpreters[type]? data
+
+  onPerformance: (data) ->
+    # <epoch> <delta> <trainperf> <trainerr> <t1perf> <t1err> <t2perf> <t2err>
+    numbers = data.trim().split(' ').map (n) -> Number(n)
+    @performance.push numbers

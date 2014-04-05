@@ -8,3 +8,4 @@ facetrain.options
 
 facetrain.train (err, network) ->
   throw err if err
+  console.log network.performance

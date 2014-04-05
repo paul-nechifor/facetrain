@@ -47,7 +47,7 @@ char *argv[];
 
     /*** Parse switches ***/
     if (argv[ind][0] == '-') {
-      switch (argv[ind][1]) {  
+      switch (argv[ind][1]) {
         case 'n': strcpy(netname, argv[++ind]);
                   break;
         case 'e': epochs = atoi(argv[++ind]);
@@ -73,9 +73,9 @@ char *argv[];
 
   /*** If any train, test1, or test2 sets have been specified, then
        load them in. ***/
-  if (trainname[0] != '\0') 
+  if (trainname[0] != '\0')
     imgl_load_images_from_textfile(trainlist, trainname);
-  if (test1name[0] != '\0') 
+  if (test1name[0] != '\0')
     imgl_load_images_from_textfile(test1list, test1name);
   if (test2name[0] != '\0')
     imgl_load_images_from_textfile(test2list, test2name);
@@ -145,7 +145,7 @@ char *netname;
   }
 
   /*** Print out performance before any epochs have been completed. ***/
-  printf("0 0.0 ");
+  printf("performance>>> 0 0.0 ");
   performance_on_imagelist(net, trainlist, 0);
   performance_on_imagelist(net, test1list, 0);
   performance_on_imagelist(net, test2list, 0);
@@ -162,7 +162,7 @@ char *netname;
   /************** Train it *****************************/
   for (epoch = 1; epoch <= epochs; epoch++) {
 
-    printf("%d ", epoch);  fflush(stdout);
+    printf("performance>>> %d ", epoch);  fflush(stdout);
 
     sumerr = 0.0;
     for (i = 0; i < train_n; i++) {

@@ -15,3 +15,15 @@ exports.pythonPlot = (script, image, data, cb) ->
   prg.on 'close', (code) ->
     return cb 'err-' + code unless code is 0
     cb()
+
+exports.trainNetworks = (facetrain, nTimes, cb) ->
+  i = 0
+  networks = []
+  next = ->
+    return cb null, networks if i >= nTimes
+    facetrain.train (err, network) ->
+      return cb err if err
+      networks.push network
+      i++
+      next()
+  next()

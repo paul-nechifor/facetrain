@@ -57,7 +57,10 @@ module.exports = class Facetrain
       images =
         for file in files
           new Image file, @vals.dataFunc file
-      cb null, @filterImages images
+      filtered = @filterImages images
+      for image in filtered
+        image.target = @vals.targetFunc image
+      cb null, filtered
 
   getImageFiles: (cb) ->
     files = []

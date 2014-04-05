@@ -304,6 +304,7 @@ char *filename;
     if ((iimg = img_open(buf)) == 0) {
       printf("Couldn't open '%s'\n", buf);
     } else {
+      fscanf(fp, "%lf\n", &iimg->target);
       imgl_add(il, iimg);
       printf("done\n");
     }

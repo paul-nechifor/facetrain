@@ -6,7 +6,8 @@ module.exports = class ImageSet
     @path = null
 
   write: (cb) ->
-    data = @images.map((image) -> image.path + '\n').join('')
+    mapping = (image) -> "#{image.path}\n#{image.target}\n"
+    data = @images.map(mapping).join('')
     tmp.file (err, path, fd) =>
       return cb err if err
       @path = path

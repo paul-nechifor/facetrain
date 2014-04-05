@@ -13,4 +13,4 @@ for line in data['error']:
   plot(line, 'r', alpha=0.4)
 xlabel('epoch')
 ylabel('error')
-savefig(sys.argv[1], bbox_inches='tight')
+savefig(sys.argv[1])

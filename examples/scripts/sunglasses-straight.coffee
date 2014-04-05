@@ -1,0 +1,14 @@
+{Facetrain} = require '../..'
+
+facetrain = new Facetrain
+
+facetrain.options
+.filter (image) -> image.head is 'straight'
+.targetFunc (image) -> if image.eyes is 'sunglasses' then 0.9 else 0.1
+
+facetrain.train (err, network) ->
+  throw err if err
+  plot = __dirname + '/../plots/perf-and-error.py'
+  image = __dirname + '/../images/sunglasses-straight-perf-and-error.svg'
+  data = JSON.stringify network.performance
+  network.pythonPlot plot, image, data, (err) ->

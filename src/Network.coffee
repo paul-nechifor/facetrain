@@ -62,10 +62,3 @@ module.exports = class Network
     numbers = data.trim().split(' ').map (n) -> Number(n)
     for number, i in numbers
       @performanceList[i].push number
-
-  pythonPlot: (script, image, data, cb) ->
-    prg = spawn 'python2', [script, image]
-    prg.stdin.end data
-    prg.on 'close', (code) ->
-      return cb 'err-' + code unless code is 0
-      cb()

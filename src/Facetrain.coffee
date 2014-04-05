@@ -1,9 +1,8 @@
 findit = require 'findit'
-tmp = require 'tmp'
-{spawn} = require 'child_process'
 Image = require './Image'
 ImageSet = require './ImageSet'
 OptionSet = require './OptionSet'
+Network = require './Network'
 
 shuffle = (array) ->
   counter = array.length
@@ -29,27 +28,10 @@ module.exports = class Facetrain
       sets = @splitSets images
       @createImageSets sets, (err, imageSets) =>
         @imageSets = imageSets
-        tmp.dir (err, path) =>
+        network = new Network this
+        network.train (err) ->
           return cb err if err
-          @networkFile = path + '/file.net'
-          @runProgram cb
-
-  runProgram: (cb) ->
-    args = []
-    args.push '-n', @networkFile
-    args.push '-e', @vals.epochs + ''
-    args.push '-t', @imageSets[0].path
-    args.push '-1', @imageSets[1].path
-    args.push '-2', @imageSets[2].path
-
-    program = spawn '../bin/facetrain', args
-
-    program.stdout.on 'data', (data) ->
-      console.log data + ''
-
-    program.on 'close', (code) ->
-      return cb 'err-' + code unless code is 0
-      cb()
+          cb null, network
 
   getImages: (cb) ->
     @getImageFiles (err, files) =>

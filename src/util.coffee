@@ -1,5 +1,6 @@
 {spawn} = require 'child_process'
 path = require 'path'
+tmp = require 'tmp'
 
 ###
   Get the name of the image to create based on the script name and place it in
@@ -27,3 +28,15 @@ exports.trainNetworks = (facetrain, nTimes, cb) ->
       i++
       next()
   next()
+
+exports.initAndSaveWeights = (facetrain, cb) ->
+  facetrain.init (err) ->
+    return cb err if err
+    network = facetrain.getNewNetwork()
+    tmp.dir (err, weightsDir) ->
+      return cb err if err
+      network.interruptListener = (epoch, next) ->
+        network.saveAllHiddenWeights weightsDir, epoch, (err) ->
+          return cb err if err
+          next()
+      cb null, network, weightsDir

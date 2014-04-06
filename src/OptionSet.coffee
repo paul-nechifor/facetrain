@@ -7,6 +7,10 @@ module.exports = class OptionSet
       imagesDir: __dirname + '/../faces'
       fileFilter: (path) -> path.endsWith '.pgm'
       scale: 4
+      # The size of the input images.
+      size: [32, 30]
+      # Number of hidden units.
+      hidden: 4
       filters: []
       split: [0.444, 0.333, 0.223]
       epochs: 75

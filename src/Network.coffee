@@ -55,6 +55,27 @@ module.exports = class Network
       return cb 'err-' + code unless code is 0
       cb()
 
+  saveHiddenWeights: (path, size, n, cb) ->
+    args = [@networkFile, path, size[0], size[1], n]
+    hid = spawn __dirname + '/../bin/hidtopgm', args
+    hid.on 'close', (code) ->
+      return cb 'err-' + code unless code is 0
+      cb()
+
+  saveAllHiddenWeights: (path, epoch, cb) ->
+    n = @facetrain.vals.hidden
+    size = @facetrain.vals.size
+
+    i = 1
+    next = =>
+      return cb null if i > n
+      imagePath = "#{path}/hidden-#{epoch}-#{i}.pgm"
+      @saveHiddenWeights imagePath, size, i, (err) ->
+        return cb err if err
+        i++
+        next()
+    next()
+
   interpretLine: (line) ->
     line = line.toString()
     start = line.indexOf '>>>'

@@ -10,6 +10,7 @@ module.exports = class OptionSet
       filters: []
       split: [0.444, 0.333, 0.223]
       epochs: 75
+      interrupt: false
       targetFunc: null
       dataFunc: (path) ->
         names = path.split '/'

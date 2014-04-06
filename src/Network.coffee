@@ -26,6 +26,10 @@ module.exports = class Network
     ]
     @lineInterpreters =
       performance: @onPerformance.bind this
+      interrupt: @onInterrupt.bind this
+    @interruptListener = (epoch, next) ->
+      next()
+    @program = null
 
   train: (cb) ->
     tmp.dir (err, path) =>
@@ -40,13 +44,14 @@ module.exports = class Network
     args.push '-t', @facetrain.imageSets[0].path
     args.push '-1', @facetrain.imageSets[1].path
     args.push '-2', @facetrain.imageSets[2].path
+    args.push '-i' if @facetrain.vals.interrupt
 
-    program = spawn __dirname + '/../bin/facetrain', args
+    @program = spawn __dirname + '/../bin/facetrain', args
 
-    lineStream = byline.createStream program.stdout
+    lineStream = byline.createStream @program.stdout
     lineStream.on 'data', @interpretLine.bind this
 
-    program.on 'close', (code) ->
+    @program.on 'close', (code) ->
       return cb 'err-' + code unless code is 0
       cb()
 
@@ -55,10 +60,16 @@ module.exports = class Network
     start = line.indexOf '>>>'
     return if start is -1
     type = line.substring 0, start
-    data = line.substring start + 4, line.length
+    data = line.substring start + 3, line.length
     @lineInterpreters[type]? data
 
   onPerformance: (data) ->
     numbers = data.trim().split(' ').map (n) -> Number(n)
     for number, i in numbers
       @performanceList[i].push number
+
+  onInterrupt: (data) ->
+    epoch = data
+    next = => @program.stdin.write 'y'
+    @interruptListener epoch, next
+

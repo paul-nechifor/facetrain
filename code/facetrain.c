@@ -24,13 +24,14 @@ char *argv[];
 {
   char netname[256], trainname[256], test1name[256], test2name[256];
   IMAGELIST *trainlist, *test1list, *test2list;
-  int ind, epochs, seed, savedelta, list_errors;
+  int ind, epochs, seed, savedelta, list_errors, interrupt;
 
   seed = 102194;   /*** today's date seemed like a good default ***/
   epochs = 100;
   savedelta = 100;
   list_errors = 0;
   netname[0] = trainname[0] = test1name[0] = test2name[0] = '\0';
+  interrupt = 0;
 
   if (argc < 2) {
     printusage(argv[0]);
@@ -64,6 +65,9 @@ char *argv[];
                   break;
         case 'T': list_errors = 1;
 	          epochs = 0;
+                  break;
+        case 'i': savedelta = 1;
+            interrupt = 1;
                   break;
         default : printf("Unknown switch '%c'\n", argv[ind][1]);
                   break;
@@ -102,16 +106,16 @@ char *argv[];
 
   /*** If we've got at least one image to train on, go train the net ***/
   backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-		list_errors);
+		list_errors, interrupt);
 
   exit(0);
 }
 
 
 backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-	      list_errors)
+	      list_errors, interrupt)
 IMAGELIST *trainlist, *test1list, *test2list;
-int epochs, savedelta, list_errors;
+int epochs, savedelta, list_errors, interrupt;
 char *netname;
 {
   IMAGE *iimg;
@@ -189,6 +193,13 @@ char *netname;
     /*** Save network every 'savedelta' epochs ***/
     if (!(epoch % savedelta)) {
       bpnn_save(net, netname);
+    }
+
+    if (interrupt) {
+      printf("interrupt>>>%d\n", epoch);
+      fflush(stdout);
+      // Block until the listener is ready.
+      getchar();
     }
 
   }

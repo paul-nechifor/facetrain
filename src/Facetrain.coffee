@@ -20,7 +20,7 @@ module.exports = class Facetrain
     @imageSets = null
     @networkFile  = null
 
-  train: (cb) ->
+  init: (cb) ->
     if @vals.scale
       @options.filter (image) => image.scale is @vals.scale
     @getImages (err, images) =>
@@ -28,10 +28,17 @@ module.exports = class Facetrain
       sets = @splitSets images
       @createImageSets sets, (err, imageSets) =>
         @imageSets = imageSets
-        network = new Network this
-        network.train (err) ->
-          return cb err if err
-          cb null, network
+        cb null
+
+  getNewNetwork: ->
+    return new Network this
+
+  train: (cb) ->
+    @init (err) =>
+      network = new Network this
+      network.train (err) ->
+        return cb err if err
+        cb null, network
 
   getImages: (cb) ->
     @getImageFiles (err, files) =>

@@ -15,7 +15,7 @@ module.exports = class OptionSet
       output: 1
       filters: []
       split: [0.444, 0.333, 0.223]
-      epochs: 75
+      epochs: 80
       interrupt: false
       targetFunc: null
       dataFunc: (path) ->

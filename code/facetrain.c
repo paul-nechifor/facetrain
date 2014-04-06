@@ -24,7 +24,7 @@ char *argv[];
 {
   char netname[256], trainname[256], test1name[256], test2name[256];
   IMAGELIST *trainlist, *test1list, *test2list;
-  int ind, epochs, seed, savedelta, list_errors, interrupt;
+  int ind, epochs, seed, savedelta, list_errors, interrupt, nHidden, nOutput;
 
   seed = 102194;   /*** today's date seemed like a good default ***/
   epochs = 100;
@@ -32,6 +32,8 @@ char *argv[];
   list_errors = 0;
   netname[0] = trainname[0] = test1name[0] = test2name[0] = '\0';
   interrupt = 0;
+  nHidden = 4;
+  nOutput = 1;
 
   if (argc < 2) {
     printusage(argv[0]);
@@ -68,6 +70,10 @@ char *argv[];
                   break;
         case 'i': savedelta = 1;
             interrupt = 1;
+                  break;
+        case 'H': nHidden = atoi(argv[++ind]);
+                  break;
+        case 'o': nOutput = atoi(argv[++ind]);
                   break;
         default : printf("Unknown switch '%c'\n", argv[ind][1]);
                   break;
@@ -106,16 +112,16 @@ char *argv[];
 
   /*** If we've got at least one image to train on, go train the net ***/
   backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-		list_errors, interrupt);
+		list_errors, interrupt, nHidden, nOutput);
 
   exit(0);
 }
 
 
 backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-	      list_errors, interrupt)
+	      list_errors, interrupt, nHidden, nOutput)
 IMAGELIST *trainlist, *test1list, *test2list;
-int epochs, savedelta, list_errors, interrupt;
+int epochs, savedelta, list_errors, interrupt, nHidden, nOutput;
 char *netname;
 {
   IMAGE *iimg;
@@ -131,11 +137,7 @@ char *netname;
       printf("Creating new network '%s'\n", netname);
       iimg = trainlist->list[0];
       imgsize = ROWS(iimg) * COLS(iimg);
-      /* bthom ===========================
-	make a net with:
-	  imgsize inputs, 4 hiden units, and 1 output unit
-          */
-      net = bpnn_create(imgsize, 4, 1);
+      net = bpnn_create(imgsize, nHidden, nOutput);
     } else {
       printf("Need some images to train on, use -t\n");
       return;

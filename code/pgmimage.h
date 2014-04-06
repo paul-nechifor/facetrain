@@ -15,7 +15,7 @@ typedef struct {
   char *name;
   int rows, cols;
   int *data;
-  double target;
+  double *target;
 } IMAGE;
 
 typedef struct {

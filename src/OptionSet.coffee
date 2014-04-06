@@ -11,6 +11,8 @@ module.exports = class OptionSet
       size: [32, 30]
       # Number of hidden units.
       hidden: 4
+      # Number of output units.
+      output: 1
       filters: []
       split: [0.444, 0.333, 0.223]
       epochs: 75

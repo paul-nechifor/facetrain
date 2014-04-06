@@ -17,8 +17,13 @@ load_target(img, net)
 IMAGE *img;
 BPNN *net;
 {
-  /*** Target units start at index 1. ***/
-  net->target[1] = img->target;
+  int i, targets;
+  targets = net->output_n;
+
+  for (i = 0; i < targets; i++) {
+    /*** Target units start at index 1. ***/
+    net->target[i + 1] = img->target[i];
+  }
 }
 
 

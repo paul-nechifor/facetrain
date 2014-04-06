@@ -41,6 +41,8 @@ module.exports = class Network
     args = []
     args.push '-n', @networkFile
     args.push '-e', @facetrain.vals.epochs + ''
+    args.push '-H', @facetrain.vals.hidden + ''
+    args.push '-o', @facetrain.vals.output + ''
     args.push '-t', @facetrain.imageSets[0].path
     args.push '-1', @facetrain.imageSets[1].path
     args.push '-2', @facetrain.imageSets[2].path

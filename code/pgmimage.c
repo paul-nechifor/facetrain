@@ -286,6 +286,7 @@ char *filename;
   IMAGE *iimg;
   FILE *fp;
   char buf[2000];
+  int targets, i;
 
   if (filename[0] == '\0') {
     printf("IMGL_LOAD_IMAGES_FROM_TEXTFILE: Invalid file '%s'\n", filename);
@@ -304,7 +305,12 @@ char *filename;
     if ((iimg = img_open(buf)) == 0) {
       printf("Couldn't open '%s'\n", buf);
     } else {
-      fscanf(fp, "%lf\n", &iimg->target);
+      fscanf(fp, "%d ", &targets);
+      iimg->target = (double *) malloc((unsigned) ((targets + 1) * sizeof(double)));
+      for (i = 0; i < targets - 1; i++) {
+        fscanf(fp, "%lf ", &iimg->target[i]);
+      }
+      fscanf(fp, "%lf\n", &iimg->target[targets - 1]);
       imgl_add(il, iimg);
       printf("done\n");
     }

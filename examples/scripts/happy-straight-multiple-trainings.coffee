@@ -3,7 +3,7 @@
 facetrain = new Facetrain
 facetrain.options
 .filter (image) -> image.head is 'straight'
-.targetFunc (image) -> if image.expression is 'happy' then 0.9 else 0.1
+.targetFunc (image) -> if image.expression is 'happy' then [0.9] else [0.1]
 
 util.trainNetworks facetrain, 100, (err, networks) ->
   throw err if err

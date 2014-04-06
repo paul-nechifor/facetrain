@@ -12,7 +12,7 @@ init = (facetrain, cb) ->
 facetrain = new Facetrain
 facetrain.options
 .filter (image) -> image.head is 'straight'
-.targetFunc (image) -> if image.expression is 'happy' then 0.9 else 0.1
+.targetFunc (image) -> if image.expression is 'happy' then [0.9] else [0.1]
 .interrupt true
 
 init facetrain, (err, network, weightsDir) ->

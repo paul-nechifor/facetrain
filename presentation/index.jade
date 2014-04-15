@@ -1,8 +1,8 @@
 mixin content
-  section
+  section.title.inverse(data-background='#27ae61')
     h1 Facetrain Experiments
     h2 Paul Nechifor
-  section.bigger
+  section
     h2 C Source Code
     ul
       li Written in 1994.
@@ -13,7 +13,7 @@ mixin content
           li Trains the network.
           li ...
       li I modified it so that everything is read on input.
-  section.bigger
+  section
     h2 CoffeeScript Wrapper
     ul
       li It's a Node.js package.
@@ -22,51 +22,111 @@ mixin content
       li Record output from the binaries.
       li Splits the lists dynamically.
       li Assigns target values.
-  section.bigger
-    h2 Initial Example
+  section
+    h2 Plots
     ul
-      li only 32×30 images
+      li Generated with Matplotlib from Python.
+      li Example:
+    pre
+      code.python.big-pre.
+        from pylab import *
+        import sys, json
+        data = json.loads(sys.stdin.read())
+        subplot(211)
+        plot(data['epoch'], data['trainperf'], 'r', label='training')
+        plot(data['epoch'], data['t1perf'], 'g', label='validation')
+        plot(data['epoch'], data['t2perf'], 'b', label='test')
+        ylabel('percent correct')
+        legend(bbox_to_anchor=(0.0, 1.02, 1.0, 0.102), loc=3,
+          ncol=3, mode="expand", borderaxespad=0.0, frameon=False)
+        ...
+  section(data-background='#EAECCB')
+    h2 1. Initial Example
+    ul
       li only straight face orientation
+      li only the 32×30 images (960 input units)
       li 4 hidden units
       li 1 output unit
       li 80 iterations (called epochs)
       li goal is to recognize the person with the id <code>glickman</code>
-  section.bigger
+  section
     p Rewritten in CoffeeScript as:
     pre
-      code.
-
+      code.coffeescript.big-pre.
         facetrain = new Facetrain
         facetrain.options
         .filter (image) -> image.head is 'straight'
-        .targetFunc (image) -> if image.person is 'glickman' then [0.9] else [0.1]
+        .targetFunc (image) ->
+          if image.person is 'glickman' then [0.9] else [0.1]
         facetrain.train (err, network) ->
           throw err if err
           plot = __dirname + '/../plots/perf-and-error.py'
           data = JSON.stringify network.performance
-          util.pythonPlot plot, util.putImage(__filename, 'svg'), data, (err) ->
-            throw err if err
-    p And generates the plot:
+          util.pythonPlot plot, util.putImage(__filename, 'svg'),
+            data, (err) -> throw err if err
+    p Runs in 1 second (after disk caching).
   section
-    img(src='images/glickman-straight.svg', alt='').plot
-  section.bigger
-    h2 Sunglasses Example
+    p And generates the plot:
+    img(src='images/glickman-straight.svg', alt='')
+    p All sets are corectly classified in about 10 iterations.
+  section(data-background='#EAECCB')
+    h2 2. Sunglasses Example
     ul
       li Same as before, but the goal is to recognize if the person is wearing sunglasses.
       li The results aren't as good.
   section
     img(src='images/sunglasses-straight.svg', alt='').plot
-  section.bigger
-    h2 Splitting the lists
+  section
+    h2 The Three Sets
     ul
-      li What is the effect of splitting the lists?
-      li The previous example is run 100 times, plotting only for the testing set.
+      li <p>After filtering, the images are split in three sets.</p>
+        ul
+          li training set (44.4&nbsp;%)
+          li validation set (33.3&nbsp;%)
+          li test set (22.3&nbsp;%)
+      li The splitting is random.
+  section(data-background='#EAECCB')
+    h2 3. Effects of Splitting
+    ul
+      li Does the splitting matter much?
+      li The previous example is run 100 times, plotting only the testing set.
+      li Runs in 58 seconds.
   section
     img(src='images/sunglasses-straight-multiple-trainings.svg', alt='').plot
   section
-    img(src='images/head.svg', alt='').plot
+    h2 Happy Faces
+    ul
+      li Similar example, but classifying happy faces.
+      li After multiple iterations the error grows.
   section
     img(src='images/happy-straight-multiple-trainings.svg', alt='').plot
+  section(data-background='#EAECCB')
+    h2 4. Multiple Output Units
+    ul
+      li Recreating the book example.
+      li 3 hidden units.
+      li 4 output units (up, right, straight, left).
+      li Stopping after every epoch to grab the hidden units representation.
+  section
+    p The code used:
+    pre
+      code.coffeescript.big-pre.
+        facetrain = new Facetrain
+        facetrain.options
+        .hidden 3
+        .output 4
+        .targetFunc (image) -> [
+          if image.head is 'up' then 0.9 else 0.1
+          if image.head is 'right' then 0.9 else 0.1
+          if image.head is 'straight' then 0.9 else 0.1
+          if image.head is 'left' then 0.9 else 0.1
+        ]
+        .interrupt true
+        ...
+  section
+    img(src='images/head.svg', alt='').plot
+  section.title.inverse(data-background='#27ae61')
+    h1 Questions?
 
 doctype html
 html(lang='en')
@@ -84,4 +144,5 @@ html(lang='en')
         +content()
     script(src='reveal/head.min.js')
     script(src='reveal/reveal.min.js')
+    script(src='js/highlight.js')
     script(src='script.js')

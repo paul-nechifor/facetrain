@@ -6,7 +6,7 @@ initReveal = ->
     center: true
     hideAddressBar: true
 
-    transition: 'linear'
+    transition: 'none'
     transitionSpeed: 'fast'
     backgroundTransition: 'slide'
 
@@ -15,6 +15,8 @@ initReveal = ->
     margin: 0.0
     minScale: 0.2
     maxScale: 4.0
+
+  hljs.initHighlightingOnLoad()
 
 main = ->
   initReveal()

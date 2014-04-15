@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat:700');
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic');
+@import url('http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic,700italic|Ubuntu:400,700,400italic,700italic')
 
 transition-mixin()
   -webkit-transition arguments
@@ -17,7 +16,7 @@ body
   text-shadow none
 
 .reveal
-  font-family "Open Sans", sans-serif
+  font-family "Ubuntu", sans-serif
   font-size 30px
   font-weight 400
   letter-spacing -0.02em
@@ -69,30 +68,135 @@ body
     width 95%
     code
       padding 10px
+      background #F8FAE1
+      display block
+      max-height none
+      line-height 1.1
+      font-family 'Ubuntu Mono'
+      &.big-pre
+        font-size 32px
     &.inline
       width auto
       display inline
-      padding 0
       code
         display inline
-        padding 0
         vertical-align 0
   table
     margin 10px auto
   h1, h2, h3, h4, h5, h6
     margin 0 0 20px 0
     color #000
-    font-family "Montserrat", Impact, sans-serif
+    font-weight 700
     line-height 0.9em
     letter-spacing -0.03em
     text-transform none
     text-shadow none
-  .bigger
-    p, li, td
-      font-size 40px
-      line-height 50px
-    li
-      margin-bottom 20px
-
+  .inverse
+    h1, h2, h3, h4, h5, h6
+      color #fff
+  p, li, td
+    font-size 40px
+    line-height 50px
+  li
+    margin-bottom 20px
+  .title
+    h1
+      font-size 160px
+      line-height 1
+      padding-bottom 50px
+    h2
+      font-size 80px
+    h1, h2
+      letter-spacing 4px
+  .title.inverse
+    h1, h2
+      text-shadow 5px 4px 0 #2ecd71,10px 9px 0 rgba(0,0,0,0.15)
   .plot
-    height 760px
+    height 800px
+    max-width none
+    max-height none
+    margin -40px 0 0 0
+
+
+// Highlight.js theme. Based on the GitHub theme.
+code
+  .comment,
+  .template_comment,
+  .diff .header,
+  .javadoc
+    color #998
+    font-style italic
+  .keyword,
+  .css .rule .keyword,
+  .winutils,
+  .javascript .title,
+  .nginx .title,
+  .subst,
+  .request,
+  .status
+    color #333
+    font-weight bold
+  .number,
+  .hexcolor,
+  .ruby .constant
+    color #099
+  .string,
+  .tag .value,
+  .phpdoc,
+  .tex .formula
+    color #d14
+  .title,
+  .id,
+  .coffeescript .params,
+  .scss .preprocessor
+    color #900
+    font-weight bold
+  .javascript .title,
+  .lisp .title,
+  .clojure .title,
+  .subst
+    font-weight normal
+  .class .title,
+  .haskell .type,
+  .vhdl .literal,
+  .tex .command
+    color #458
+    font-weight bold
+  .tag,
+  .tag .title,
+  .rules .property,
+  .django .tag .keyword
+    color #000080
+    font-weight normal
+  .attribute,
+  .variable,
+  .lisp .body
+    color #008080
+  .regexp
+    color #009926
+  .symbol,
+  .ruby .symbol .string,
+  .lisp .keyword,
+  .tex .special,
+  .prompt
+    color #990073
+  .built_in,
+  .lisp .title,
+  .clojure .built_in
+    color #0086b3
+  .preprocessor,
+  .pragma,
+  .pi,
+  .doctype,
+  .shebang,
+  .cdata
+    color #999
+    font-weight bold
+  .deletion
+    background #fdd
+  .addition
+    background #dfd
+  .diff .change
+      background #0086b3
+  .chunk
+    color #aaa

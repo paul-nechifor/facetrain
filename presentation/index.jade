@@ -1,0 +1,24 @@
+mixin content
+  section
+    h1 Facetrain Presentation
+    h2 Paul Nechifor
+  section
+    img(src='images/glickman-straight.svg', alt='').plot
+
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title Facetrain Presentation
+    meta(name='apple-mobile-web-app-capable', content='yes')
+    meta(name='apple-mobile-web-app-status-bar-style', content='black-translucent')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
+    link(rel='stylesheet', href='reveal/reveal.min.css')
+    link(rel='stylesheet', href='style.css')
+  body
+    .reveal
+      .slides
+        +content()
+    script(src='reveal/head.min.js')
+    script(src='reveal/reveal.min.js')
+    script(src='script.js')

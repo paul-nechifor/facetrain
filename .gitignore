@@ -2,6 +2,8 @@
 /bin
 /lib
 /examples/images
+/presentation/bower_components
+/presentation/build
 nbproject
 node_modules
 .idea

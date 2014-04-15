@@ -1,15 +1,78 @@
 mixin content
   section
-    h1 Facetrain Presentation
+    h1 Facetrain Experiments
     h2 Paul Nechifor
+  section.bigger
+    h2 C Source Code
+    ul
+      li Written in 1994.
+      li <p>What it does:</p>
+        ul
+          li Reads the lists.
+          li Computes the target value for every image.
+          li Trains the network.
+          li ...
+      li I modified it so that everything is read on input.
+  section.bigger
+    h2 CoffeeScript Wrapper
+    ul
+      li It's a Node.js package.
+      li Written so that experiments can be more flexible.
+      li Uses the <code>facetrain</code> binaries.
+      li Record output from the binaries.
+      li Splits the lists dynamically.
+      li Assigns target values.
+  section.bigger
+    h2 Initial Example
+    ul
+      li only 32×30 images
+      li only straight face orientation
+      li 4 hidden units
+      li 1 output unit
+      li 80 iterations (called epochs)
+      li goal is to recognize the person with the id <code>glickman</code>
+  section.bigger
+    p Rewritten in CoffeeScript as:
+    pre
+      code.
+
+        facetrain = new Facetrain
+        facetrain.options
+        .filter (image) -> image.head is 'straight'
+        .targetFunc (image) -> if image.person is 'glickman' then [0.9] else [0.1]
+        facetrain.train (err, network) ->
+          throw err if err
+          plot = __dirname + '/../plots/perf-and-error.py'
+          data = JSON.stringify network.performance
+          util.pythonPlot plot, util.putImage(__filename, 'svg'), data, (err) ->
+            throw err if err
+    p And generates the plot:
   section
     img(src='images/glickman-straight.svg', alt='').plot
+  section.bigger
+    h2 Sunglasses Example
+    ul
+      li Same as before, but the goal is to recognize if the person is wearing sunglasses.
+      li The results aren't as good.
+  section
+    img(src='images/sunglasses-straight.svg', alt='').plot
+  section.bigger
+    h2 Splitting the lists
+    ul
+      li What is the effect of splitting the lists?
+      li The previous example is run 100 times, plotting only for the testing set.
+  section
+    img(src='images/sunglasses-straight-multiple-trainings.svg', alt='').plot
+  section
+    img(src='images/head.svg', alt='').plot
+  section
+    img(src='images/happy-straight-multiple-trainings.svg', alt='').plot
 
 doctype html
 html(lang='en')
   head
     meta(charset='utf-8')
-    title Facetrain Presentation
+    title Facetrain Experiments
     meta(name='apple-mobile-web-app-capable', content='yes')
     meta(name='apple-mobile-web-app-status-bar-style', content='black-translucent')
     meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')

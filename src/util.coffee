@@ -1,4 +1,4 @@
-{spawn} = require 'child_process'
+{spawn, exec} = require 'child_process'
 path = require 'path'
 tmp = require 'tmp'
 
@@ -49,3 +49,31 @@ exports.getMultipleErrorData = (networks) ->
     data.perf.push network.performance.t2perf
     data.error.push network.performance.t2err
   return data
+
+exports.sh = sh = (script, cb) ->
+  exec script, (err, stdout, stderr) ->
+    return cb? err if err
+    process.stdout.write stdout + stderr
+    cb?()
+
+exports.joinHidden = (dir, nHidden, nEpochs, geom, cb) ->
+  script = "cd #{dir}\n"
+  h = nHidden
+  for e in [1..nEpochs]
+    script += "montage hidden-#{e}-[1-#{h}].pgm -tile #{h}x1 " +
+      "-geometry #{geom} -filter point  hidden-#{e}.png\n"
+  sh script, cb
+
+exports.animateHidden = (dir, delay, cb) ->
+  c = """
+    cd #{dir}
+    convert -delay #{delay} -loop 0 hidden-*.png hidden.gif
+  """
+  sh c, cb
+
+exports.joinAndAnimate = (dir, nHidden, nEpochs, geom, delay, cb) ->
+  exports.joinHidden dir, nHidden, nEpochs, geom, (err) ->
+    return cb? err if err
+    exports.animateHidden dir, delay, (err) ->
+      return cb? err if err
+      cb?()

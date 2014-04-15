@@ -40,3 +40,12 @@ exports.initAndSaveWeights = (facetrain, cb) ->
           return cb err if err
           next()
       cb null, network, weightsDir
+
+exports.getMultipleErrorData = (networks) ->
+  data =
+    perf: []
+    error: []
+  for network in networks
+    data.perf.push network.performance.t2perf
+    data.error.push network.performance.t2err
+  return data

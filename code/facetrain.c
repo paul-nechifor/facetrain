@@ -18,6 +18,9 @@
 extern char *strcpy();
 extern void exit();
 
+int evaluate_single_performance(BPNN *net, double *err);
+int evaluate_on_performance(BPNN *net, double *err);
+
 main(argc, argv)
 int argc;
 char *argv[];
@@ -34,6 +37,7 @@ char *argv[];
   interrupt = 0;
   nHidden = 4;
   nOutput = 1;
+  int (*eval_func)(BPNN *net, double *err) = NULL;
 
   if (argc < 2) {
     printusage(argv[0]);
@@ -112,17 +116,18 @@ char *argv[];
 
   /*** If we've got at least one image to train on, go train the net ***/
   backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-		list_errors, interrupt, nHidden, nOutput);
+		list_errors, interrupt, nHidden, nOutput, eval_func);
 
   exit(0);
 }
 
 
 backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-	      list_errors, interrupt, nHidden, nOutput)
+	      list_errors, interrupt, nHidden, nOutput, eval_func)
 IMAGELIST *trainlist, *test1list, *test2list;
 int epochs, savedelta, list_errors, interrupt, nHidden, nOutput;
 char *netname;
+int (*eval_func)(BPNN *net, double *err);
 {
   IMAGE *iimg;
   BPNN *net;
@@ -150,19 +155,30 @@ char *netname;
     fflush(stdout);
   }
 
+  // If no evaluation function is chosen, pick an appropriate one.
+  if (eval_func == NULL) {
+    if (net->output_n == 1) {
+      eval_func = evaluate_single_performance;
+    } else {
+      eval_func = evaluate_on_performance;
+    }
+  }
+
   /*** Print out performance before any epochs have been completed. ***/
   printf("performance>>> 0 0.0 ");
-  performance_on_imagelist(net, trainlist, 0);
-  performance_on_imagelist(net, test1list, 0);
-  performance_on_imagelist(net, test2list, 0);
-  printf("\n");  fflush(stdout);
+  performance_on_imagelist(net, trainlist, 0, eval_func);
+  performance_on_imagelist(net, test1list, 0, eval_func);
+  performance_on_imagelist(net, test2list, 0, eval_func);
+  printf("\n");
+  fflush(stdout);
+
   if (list_errors) {
     printf("\nFailed to classify the following images from the training set:\n");
-    performance_on_imagelist(net, trainlist, 1);
+    performance_on_imagelist(net, trainlist, 1, eval_func);
     printf("\nFailed to classify the following images from the test set 1:\n");
-    performance_on_imagelist(net, test1list, 1);
+    performance_on_imagelist(net, test1list, 1, eval_func);
     printf("\nFailed to classify the following images from the test set 2:\n");
-    performance_on_imagelist(net, test2list, 1);
+    performance_on_imagelist(net, test2list, 1, eval_func);
   }
 
   /************** Train it *****************************/
@@ -187,9 +203,9 @@ char *netname;
     printf("%g ", sumerr);
 
     /*** Evaluate performance on train, test, test2, and print perf ***/
-    performance_on_imagelist(net, trainlist, 0);
-    performance_on_imagelist(net, test1list, 0);
-    performance_on_imagelist(net, test2list, 0);
+    performance_on_imagelist(net, trainlist, 0, eval_func);
+    performance_on_imagelist(net, test1list, 0, eval_func);
+    performance_on_imagelist(net, test2list, 0, eval_func);
     printf("\n");  fflush(stdout);
 
     /*** Save network every 'savedelta' epochs ***/
@@ -217,10 +233,11 @@ char *netname;
 /*** Computes the performance of a net on the images in the imagelist. ***/
 /*** Prints out the percentage correct on the image set, and the
      average error between the target and the output units for the set. ***/
-performance_on_imagelist(net, il, list_errors)
+performance_on_imagelist(net, il, list_errors, eval_func)
 BPNN *net;
 IMAGELIST *il;
 int list_errors;
+int (*eval_func)(BPNN *net, double *err);
 {
   double err, val;
   int i, n, j, correct;
@@ -228,83 +245,61 @@ int list_errors;
   err = 0.0;
   correct = 0;
   n = il->n;
-  if (n > 0) {
-    for (i = 0; i < n; i++) {
 
-      /*** Load the image into the input layer. **/
-      load_input_with_image(il->list[i], net);
-
-      /*** Run the net on this input. **/
-      bpnn_feedforward(net);
-
-      /*** Set up the target vector for this image. **/
-      load_target(il->list[i], net);
-
-      /*** See if it got it right. ***/
-      if (evaluate_performance(net, &val, 0)) {
-        correct++;
-      } else if (list_errors) {
-	printf("%s - outputs ", NAME(il->list[i]));
-	for (j = 1; j <= net->output_n; j++) {
-	  printf("%.3f ", net->output_units[j]);
-	}
-	putchar('\n');
-      }
-      err += val;
-    }
-
-    err = err / (double) n;
-
-    if (!list_errors)
-      /* bthom==================================
-	 this line prints part of the ouput line
-	 discussed in section 3.1.2 of homework
-          */
-      printf("%g %g ", ((double) correct / (double) n) * 100.0, err);
-  } else {
-    if (!list_errors)
-      printf("0.0 0.0 ");
+  if (n == 0) {
+    return;
   }
+
+  for (i = 0; i < n; i++) {
+    /*** Load the image into the input layer. **/
+    load_input_with_image(il->list[i], net);
+    /*** Run the net on this input. **/
+    bpnn_feedforward(net);
+    /*** Set up the target vector for this image. **/
+    load_target(il->list[i], net);
+    /*** See if it got it right. ***/
+    if (eval_func(net, &val)) {
+      correct++;
+    }
+    err += val;
+  }
+
+  err = err / (double) n;
+
+  printf("%g %g ", ((double) correct / (double) n) * 100.0, err);
 }
 
-evaluate_performance(net, err)
-BPNN *net;
-double *err;
-{
-  double delta;
-
-  delta = net->target[1] - net->output_units[1];
-
+int evaluate_single_performance(BPNN *net, double *err) {
+  double delta = net->target[1] - net->output_units[1];
   *err = (0.5 * delta * delta);
 
-  /*** If the target unit is on... ***/
-  if (net->target[1] > 0.5) {
-
-    /*** If the output unit is on, then we correctly recognized me! ***/
-    if (net->output_units[1] > 0.5) {
-      return (1);
-
-    /*** otherwise, we didn't think it was me... ***/
-    } else {
-      return (0);
-    }
-
-  /*** Else, the target unit is off... ***/
-  } else {
-
-    /*** If the output unit is on, then we mistakenly thought it was me ***/
-    if (net->output_units[1] > 0.5) {
-      return (0);
-
-    /*** else, we correctly realized that it wasn't me ***/
-    } else {
-      return (1);
-    }
-  }
-
+  int target_is_on = net->target[1] > 0.5;
+  int output_is_on = net->output_units[1] > 0.5;
+  return target_is_on == output_is_on;
 }
 
+// Under this evaluation scheme, only one target must be set to the maximum and
+// the classification is correct if that output unit is the maximum.
+int evaluate_on_performance(BPNN *net, double *err) {
+  int n = net->output_n;
+  int max_target = get_max_unit(net->target, n);
+  int max_output = get_max_unit(net->output_units, n);
+  double delta = net->target[max_target] - net->output_units[max_target]; // sic
+  *err = (0.5 * delta * delta);
+  return max_target == max_output;
+}
 
+int get_max_unit(double *array, int n) {
+  int i, max_unit = 1;
+  double max = array[max_unit];
+  for (i = max_unit + 1; i <= n; i++) {
+    if (array[i] > max) {
+      max = array[i];
+      max_unit = i;
+    }
+  }
+  return max_unit;
+}
 
 printusage(prog)
 char *prog;

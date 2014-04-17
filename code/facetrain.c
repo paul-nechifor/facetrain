@@ -36,6 +36,7 @@ char *argv[];
   interrupt = 0;
   nHidden = 4;
   nOutput = 1;
+  int classify = 0;
   int (*eval_func)(BPNN *net, double *err) = NULL;
 
   if (argc < 2) {
@@ -75,6 +76,7 @@ char *argv[];
                   break;
         case 'o': nOutput = atoi(argv[++ind]);
                   break;
+        case 'c': classify = 1;
         default : printf("Unknown switch '%c'\n", argv[ind][1]);
                   break;
       }
@@ -112,15 +114,15 @@ char *argv[];
 
   /*** If we've got at least one image to train on, go train the net ***/
   backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-		  interrupt, nHidden, nOutput, eval_func);
+		  interrupt, nHidden, nOutput, eval_func, classify);
 
   exit(0);
 }
 
 backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-	  interrupt, nHidden, nOutput, eval_func)
+	  interrupt, nHidden, nOutput, eval_func, classify)
 IMAGELIST *trainlist, *test1list, *test2list;
-int epochs, savedelta, interrupt, nHidden, nOutput;
+int epochs, savedelta, interrupt, nHidden, nOutput, classify;
 char *netname;
 int (*eval_func)(BPNN *net, double *err);
 {
@@ -142,6 +144,11 @@ int (*eval_func)(BPNN *net, double *err);
       printf("Need some images to train on, use -t\n");
       return;
     }
+  }
+
+  if (classify) {
+    print_classification(net, trainlist);
+    exit(0);
   }
 
   if (epochs > 0) {
@@ -251,6 +258,21 @@ int (*eval_func)(BPNN *net, double *err);
   err = err / (double) n;
 
   printf("%g %g ", ((double) correct / (double) n) * 100.0, err);
+}
+
+void print_classification(BPNN *net, IMAGELIST *il) {
+  int i, j;
+  for (i = 0; i < il->n; i++) {
+    load_input_with_image(il->list[i], net);
+    bpnn_feedforward(net);
+    load_target(il->list[i], net);
+    printf("imgclassif>>>%d", i);
+    for (j = 1; j <= net->output_n; j++) {
+      printf(" %lf", net->output_units[j]);
+    }
+    printf("\n");
+    fflush(stdout);
+  }
 }
 
 int evaluate_single_performance(BPNN *net, double *err) {

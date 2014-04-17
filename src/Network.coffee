@@ -27,27 +27,41 @@ module.exports = class Network
     @lineInterpreters =
       performance: @onPerformance.bind this
       interrupt: @onInterrupt.bind this
+      imgclassif: @onImgClassif.bind this
     @interruptListener = (epoch, next) ->
       next()
     @program = null
+    @imgClassifResults = null
 
   train: (cb) ->
     tmp.dir (err, path) =>
       return cb err if err
       @networkFile = path + '/file.net'
-      @runProgram cb
+      args = [
+        '-n', @networkFile
+        '-e', @facetrain.vals.epochs + ''
+        '-H', @facetrain.vals.hidden + ''
+        '-o', @facetrain.vals.output + ''
+        '-t', @facetrain.imageSets[0].path
+        '-1', @facetrain.imageSets[1].path
+        '-2', @facetrain.imageSets[2].path
+      ]
+      args.push '-i' if @facetrain.vals.interrupt
+      @runProgram args, cb
 
-  runProgram: (cb) ->
-    args = []
-    args.push '-n', @networkFile
-    args.push '-e', @facetrain.vals.epochs + ''
-    args.push '-H', @facetrain.vals.hidden + ''
-    args.push '-o', @facetrain.vals.output + ''
-    args.push '-t', @facetrain.imageSets[0].path
-    args.push '-1', @facetrain.imageSets[1].path
-    args.push '-2', @facetrain.imageSets[2].path
-    args.push '-i' if @facetrain.vals.interrupt
+  classify: (setPath, cb) ->
+    @imgClassifResults = []
+    args = [
+      '-n', @networkFile
+      '-e', '0'
+      '-H', @facetrain.vals.hidden + ''
+      '-o', @facetrain.vals.output + ''
+      '-t', setPath
+      '-c'
+    ]
+    @runProgram args, cb
 
+  runProgram: (args, cb) ->
     @program = spawn __dirname + '/../bin/facetrain', args
 
     lineStream = byline.createStream @program.stdout
@@ -90,9 +104,13 @@ module.exports = class Network
     numbers = data.trim().split(' ').map (n) -> Number(n)
     for number, i in numbers
       @performanceList[i].push number
+    return
 
   onInterrupt: (data) ->
     epoch = data
     next = => @program.stdin.write 'y'
     @interruptListener epoch, next
 
+  onImgClassif: (data) ->
+    numbers = data.trim().split(' ').map (n) -> Number(n)
+    @imgClassifResults.push numbers

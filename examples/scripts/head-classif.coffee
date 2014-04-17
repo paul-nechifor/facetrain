@@ -13,7 +13,11 @@ facetrain.options
 
 facetrain.train (err, network) ->
   throw err if err
-  network.classify facetrain.imageSets[0].path, (err) ->
+  set = facetrain.imageSets[1]
+  network.classify set.path, (err) ->
     throw err if err
-    for image, i in facetrain.imageSets[0].images
-      console.log image.path, network.imgClassifResults[i]
+    results = network.imgClassifResults
+    for classif, i in results
+      classif.path = set.images[i].path
+    results.sort (a, b) -> a.error - b.error
+    console.log classif for classif in results

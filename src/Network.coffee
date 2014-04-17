@@ -113,4 +113,8 @@ module.exports = class Network
 
   onImgClassif: (data) ->
     numbers = data.trim().split(' ').map (n) -> Number(n)
-    @imgClassifResults.push numbers
+    classif =
+      correct: !!numbers[1]
+      error: numbers[2]
+      output: numbers.slice 3
+    @imgClassifResults.push classif

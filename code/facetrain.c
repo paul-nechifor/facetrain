@@ -146,17 +146,6 @@ int (*eval_func)(BPNN *net, double *err);
     }
   }
 
-  if (classify) {
-    print_classification(net, trainlist);
-    exit(0);
-  }
-
-  if (epochs > 0) {
-    printf("Training underway (going to %d epochs)\n", epochs);
-    printf("Will save network every %d epochs\n", savedelta);
-    fflush(stdout);
-  }
-
   // If no evaluation function is chosen, pick an appropriate one.
   if (eval_func == NULL) {
     if (net->output_n == 1) {
@@ -164,6 +153,17 @@ int (*eval_func)(BPNN *net, double *err);
     } else {
       eval_func = evaluate_on_performance;
     }
+  }
+
+  if (classify) {
+    print_classification(net, trainlist, eval_func);
+    exit(0);
+  }
+
+  if (epochs > 0) {
+    printf("Training underway (going to %d epochs)\n", epochs);
+    printf("Will save network every %d epochs\n", savedelta);
+    fflush(stdout);
   }
 
   /*** Print out performance before any epochs have been completed. ***/
@@ -260,13 +260,19 @@ int (*eval_func)(BPNN *net, double *err);
   printf("%g %g ", ((double) correct / (double) n) * 100.0, err);
 }
 
-void print_classification(BPNN *net, IMAGELIST *il) {
-  int i, j;
+void print_classification(BPNN *net, IMAGELIST *il,
+    int (*eval_func)(BPNN *net, double *err)) {
+  int i, j, is_correct;
+  double err;
+
   for (i = 0; i < il->n; i++) {
     load_input_with_image(il->list[i], net);
     bpnn_feedforward(net);
     load_target(il->list[i], net);
-    printf("imgclassif>>>%d", i);
+
+    is_correct = eval_func(net, &err);
+    printf("imgclassif>>>%d %d %lf", i, is_correct, err);
+
     for (j = 1; j <= net->output_n; j++) {
       printf(" %lf", net->output_units[j]);
     }

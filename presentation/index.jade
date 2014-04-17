@@ -125,6 +125,22 @@ mixin content
         ...
   section
     img(src='images/head.svg', alt='').plot
+  section
+    h2 Example Classifications
+    - for (var i = 0; i < 4; i++)
+      img(src="images/head-classif-#{i}.gif", alt='').img-classif
+  section
+    p Correct classifications:
+    - for (var i = 0; i < 8; i++)
+      img(src="images/head-classif-good-#{i}.png", alt='').img-classif-small
+  section
+    p Correct classifications:
+    - for (var i = 8; i < 16; i++)
+      img(src="images/head-classif-good-#{i}.png", alt='').img-classif-small
+  section
+    p Wrong classifications:
+    - for (var i = 0; i < 8; i++)
+      img(src="images/head-classif-bad-#{i}.png", alt='').img-classif-small
   section(data-background='#EAECCB')
     h2 5. Visualizing Hidden Units
   section

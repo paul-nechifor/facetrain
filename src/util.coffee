@@ -77,3 +77,32 @@ exports.joinAndAnimate = (dir, nHidden, nEpochs, geom, delay, cb) ->
     exports.animateHidden dir, delay, (err) ->
       return cb? err if err
       cb?()
+
+exports.plotClassifs = (classifs, cb) ->
+  tmp.dir (err, dir) ->
+    return cb err if err
+    i = 0
+    next = ->
+      return cb null, dir if i >= classifs.length
+      exports.plotClassif dir, i, classifs[i], (err) ->
+        return cb err if err
+        i++
+        next()
+    next()
+
+exports.plotClassif = (dir, i, classif, cb) ->
+  plot = __dirname + '/../examples/plots/output.py'
+  data =
+    output: classif.output
+  data = JSON.stringify data
+  image = "#{dir}/plot#{i}.png"
+  exports.pythonPlot plot, image, data, (err) ->
+    return cb err if err
+    cb()
+
+    sh """
+      cd #{dir}
+      convert -scale 256x240 #{classif.path} face#{i}.png
+      convert -scale 256 plot#{i}.png plot-small-#{i}.png
+      convert -append face#{i}.png plot-small-#{i}.png out#{i}.png
+    """

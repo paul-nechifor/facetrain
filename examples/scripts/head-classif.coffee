@@ -21,3 +21,38 @@ facetrain.train (err, network) ->
       classif.path = set.images[i].path
     results.sort (a, b) -> a.error - b.error
     console.log classif for classif in results
+
+    util.plotClassifs results, (err, dir) ->
+      throw err if err
+
+      interval = (a, b) ->
+        list =
+          for i in [a..b]
+            "out#{i}.png"
+        return list.join ' '
+
+      len = results.length
+      images = __dirname + '/../images'
+
+      copyBad = ->
+        ret = ''
+        for i in [0..7]
+          ret += "cp out#{len-i-1}.png #{images}/head-classif-bad-#{i}.png\n"
+        return ret
+
+      copyGood = ->
+        ret = ''
+        for i in [0..15]
+          ret += "cp out#{i}.png #{images}/head-classif-good-#{i}.png\n"
+        return ret
+
+      util.sh """
+        cd #{dir}
+        convert -delay 300 -loop 0 #{interval  0,  9} head-classif-0.gif
+        convert -delay 300 -loop 0 #{interval 10, 19} head-classif-1.gif
+        convert -delay 300 -loop 0 #{interval 20, 29} head-classif-2.gif
+        convert -delay 300 -loop 0 #{interval len-11, len-1} head-classif-3.gif
+        cp head-classif-* #{images}
+        #{copyBad()}
+        #{copyGood()}
+      """, (err) -> throw err if err

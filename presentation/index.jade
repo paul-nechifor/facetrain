@@ -72,8 +72,9 @@ mixin content
   section(data-background='#EAECCB')
     h2 2. Sunglasses Example
     ul
-      li Same as before, but the goal is to recognize if the person is wearing sunglasses.
-      li The results aren't as good.
+      li Same as before, but the goal is to recognize if the person is wearing
+        | sunglasses.
+      li The results are poorer.
   section
     img(src='images/sunglasses-straight.svg', alt='').plot
   section
@@ -89,7 +90,8 @@ mixin content
     h2 3. Effects of Splitting
     ul
       li Does the splitting matter much?
-      li The previous example is run 100 times, plotting only the testing set.
+      li The previous example is now run 100 times, plotting only the testing
+        | set.
       li Runs in 58 seconds.
   section
     img(src='images/sunglasses-straight-multiple-trainings.svg', alt='').plot
@@ -138,18 +140,31 @@ mixin content
     - for (var i = 8; i < 16; i++)
       img(src="images/head-classif-good-#{i}.png", alt='').img-classif-small
   section
-    p Wrong classifications:
+    p Incorrect classifications:
     - for (var i = 0; i < 8; i++)
       img(src="images/head-classif-bad-#{i}.png", alt='').img-classif-small
   section(data-background='#EAECCB')
     h2 5. Visualizing Hidden Units
+    ul
+      li Trying to see if the weights have recognizable patterns.
+      li Classifying happy faces and stopping after every epoch to grab images
+        | of the weights.
+      li Result: no recognizable patterns emerge.
+
   section
     p First epoch:
     img(src='images/intermediate-faces-hidden-first.png', alt='')
     p Last epoch:
     img(src='images/intermediate-faces-hidden-last.png', alt='')
-    p Animation for all:
+    p Animation for all (subltle changes):
     img(src='images/intermediate-faces-hidden-animation.gif', alt='')
+  section
+    ul
+      li Does varying the number of hidden units produce linked results?
+      li Running head orientation classification example.
+      li The images should be similar to those in the “Machine Learning” book,
+        | but aren't.
+      li Result: again, no recognizable patterns emerge.
   section
     p 3 hidden:
     img(src='images/head-orientation-3-hidden-last.png', alt='')

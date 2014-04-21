@@ -35,7 +35,6 @@ getFirstTraining (err, facetrain, network) ->
     plot = __dirname + '/../plots/multiple-trainings-ordered.py'
     data = util.getMultipleErrorData networks
     data.title = 'images used: red = 70 to blue = 10'
-    data = JSON.stringify data
     util.pythonPlot plot, util.putImage(__filename, 'svg'), data, (err) ->
       throw err if err
 

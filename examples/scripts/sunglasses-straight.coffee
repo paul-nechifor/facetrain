@@ -8,6 +8,6 @@ facetrain.options
 facetrain.train (err, network) ->
   throw err if err
   plot = __dirname + '/../plots/perf-and-error.py'
-  data = JSON.stringify network.performance
+  data = network.performance
   util.pythonPlot plot, util.putImage(__filename, 'svg'), data, (err) ->
     throw err if err

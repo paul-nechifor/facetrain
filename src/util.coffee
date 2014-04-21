@@ -12,7 +12,7 @@ exports.putImage = (filename, extension) ->
 
 exports.pythonPlot = (script, image, data, cb) ->
   prg = spawn 'python2', [script, image]
-  prg.stdin.end data
+  prg.stdin.end JSON.stringify data
   prg.on 'close', (code) ->
     return cb 'err-' + code unless code is 0
     cb()
@@ -94,7 +94,6 @@ exports.plotClassif = (dir, i, classif, cb) ->
   plot = __dirname + '/../examples/plots/output.py'
   data =
     output: classif.output
-  data = JSON.stringify data
   image = "#{dir}/plot#{i}.png"
   exports.pythonPlot plot, image, data, (err) ->
     return cb err if err

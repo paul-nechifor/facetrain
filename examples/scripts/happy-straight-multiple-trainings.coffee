@@ -8,6 +8,6 @@ facetrain.options
 util.trainNetworks facetrain, 100, (err, networks) ->
   throw err if err
   plot = __dirname + '/../plots/multiple-trainings.py'
-  data = JSON.stringify util.getMultipleErrorData networks
+  data = util.getMultipleErrorData networks
   util.pythonPlot plot, util.putImage(__filename, 'svg'), data, (err) ->
     throw err if err

@@ -103,7 +103,15 @@ mixin content
   section
     img(src='images/happy-straight-multiple-trainings.svg', alt='').plot
   section(data-background='#EAECCB')
-    h2 4. Multiple Output Units
+    h2 4. Number of Instances
+    ul
+      li Visualising the effects of fewer training instances.
+      li Running the sunglasses example.
+      li Results: as expected.
+  section
+    img(src='images/sunglasses-fewer-instances.svg', alt='').plot
+  section(data-background='#EAECCB')
+    h2 5. Multiple Output Units
     ul
       li Recreating the book example.
       li 3 hidden units.
@@ -144,7 +152,7 @@ mixin content
     - for (var i = 0; i < 8; i++)
       img(src="images/head-classif-bad-#{i}.png", alt='').img-classif-small
   section(data-background='#EAECCB')
-    h2 5. Visualizing Hidden Units
+    h2 6. Visualizing Hidden Units
     ul
       li Trying to see if the weights have recognizable patterns.
       li Classifying happy faces and stopping after every epoch to grab images

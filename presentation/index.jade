@@ -2,6 +2,22 @@ mixin content
   section.title.inverse(data-background='#27ae61')
     h1 Facetrain Experiments
     h2 Paul Nechifor
+    .sub-info
+      p.left
+        a(href='http://www.infoiasi.ro/bin/Main/') Faculty of Computer Science
+      p.right 22 April 2014
+  section(data-background='#EAECCB')
+    h2 Overview
+    ul
+      li Description of Parts
+      li <p>Experiments</p>
+        ol
+          li Initial Example
+          li Sunglasses Example
+          li Effects of Splitting
+          li Number of Instances
+          li Multiple Output Units
+          li Visualizing Hidden Units
   section
     h2 C Source Code
     ul
@@ -10,8 +26,7 @@ mixin content
         ul
           li Reads the lists.
           li Computes the target value for every image.
-          li Trains the network.
-          li ...
+          li Trains the network. And others...
       li I modified it so that everything is read on input.
   section
     h2 CoffeeScript Wrapper
@@ -19,7 +34,7 @@ mixin content
       li It's a Node.js package.
       li Written so that experiments can be more flexible.
       li Uses the <code>facetrain</code> binaries.
-      li Record output from the binaries.
+      li Records output from the binaries for processing.
       li Splits the lists dynamically.
       li Assigns target values.
   section
@@ -56,14 +71,19 @@ mixin content
         facetrain = new Facetrain
         facetrain.options
         .filter (image) -> image.head is 'straight'
+        .scale 4
+        .hidden 4
+        .output 1
+        .size [32, 30]
+        .split [0.444, 0.333, 0.223]
+        .epochs 80
         .targetFunc (image) ->
-          if image.person is 'glickman' then [0.9] else [0.1]
+           if image.person is 'glickman' then [0.9] else [0.1]
         facetrain.train (err, network) ->
           throw err if err
           plot = __dirname + '/../plots/perf-and-error.py'
-          data = JSON.stringify network.performance
           util.pythonPlot plot, util.putImage(__filename, 'svg'),
-            data, (err) -> throw err if err
+            network.performance, (err) -> throw err if err
     p Runs in 1 second (after disk caching).
   section
     p And generates the plot:
@@ -77,22 +97,16 @@ mixin content
       li The results are poorer.
   section
     img(src='images/sunglasses-straight.svg', alt='').plot
-  section
-    h2 The Three Sets
-    ul
-      li <p>After filtering, the images are split in three sets.</p>
-        ul
-          li training set (44.4&nbsp;%)
-          li validation set (33.3&nbsp;%)
-          li test set (22.3&nbsp;%)
-      li The splitting is random.
   section(data-background='#EAECCB')
     h2 3. Effects of Splitting
     ul
+      li Normally, the images are randomly split in 3 sets.
+      li In the original <code>facetrain</code> the spliting is static.
       li Does the splitting matter much?
       li The previous example is now run 100 times, plotting only the testing
         | set.
       li Runs in 58 seconds.
+      li Results: with the few instances provided, the splitting matters.
   section
     img(src='images/sunglasses-straight-multiple-trainings.svg', alt='').plot
   section
@@ -165,7 +179,6 @@ mixin content
       li Classifying happy faces and stopping after every epoch to grab images
         | of the weights.
       li Result: no recognizable patterns emerge.
-
   section
     p First epoch:
     img(src='images/intermediate-faces-hidden-first.png', alt='')
@@ -187,8 +200,24 @@ mixin content
     img(src='images/head-orientation-4-hidden-last.png', alt='')
     p 5 hidden:
     img(src='images/head-orientation-5-hidden-last.png', alt='')
+  section(data-background='#EAECCB')
+    h2 References
+    ul
+      li Book: “Machine Learning” by Tom Mitchell
+      li Source code:
+        = ' '
+        a(href='http://www.cs.cmu.edu/~awm/15781/2003/hw3/face/')
+          code http://www.cs.cmu.edu/~awm<br/>/15781/2003/hw3/face/
+
+    h2 My Works
+    ul
+      li Repo for project:
+        = ' '
+        a(href='https://github.com/paul-nechifor/facetrain')
+          code https://github.com<br/>/paul-nechifor/facetrain
   section.title.inverse(data-background='#27ae61')
-    h1 Questions?
+    h1 The End
+    h2 Questions?
 
 doctype html
 html(lang='en')

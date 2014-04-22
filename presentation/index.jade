@@ -151,6 +151,13 @@ mixin content
     p Incorrect classifications:
     - for (var i = 0; i < 8; i++)
       img(src="images/head-classif-bad-#{i}.png", alt='').img-classif-small
+  section
+    h2 Own Face Classification
+    ul
+      li The results aren't so good.
+      li It's possible the different setup affects them.
+    - for (var i = 0; i < 4; i++)
+      img(src="images/own-classif-#{i}.png", alt='').img-classif
   section(data-background='#EAECCB')
     h2 6. Visualizing Hidden Units
     ul

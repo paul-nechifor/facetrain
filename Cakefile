@@ -20,6 +20,7 @@ b = new Build task, config, (->),
       mkdir presentation/build/reveal presentation/build/js
       cd presentation/bower_components/reveal.js
       cp js/reveal.min.js css/reveal.min.css lib/js/* ../../build/reveal
+      cp css/print/pdf.css ../../build/reveal
       cp plugin/highlight/highlight.js ../../build/js
     """, cb
 

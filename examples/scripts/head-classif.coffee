@@ -1,5 +1,7 @@
 {Facetrain, util} = require '../..'
 
+images = __dirname + '/../images'
+
 facetrain = new Facetrain
 facetrain.options
 .hidden 3
@@ -11,19 +13,26 @@ facetrain.options
   if image.head is 'left' then 0.9 else 0.1
 ]
 
-facetrain.train (err, network) ->
-  throw err if err
-  set = facetrain.imageSets[1]
+getOwn = (cb) ->
+  own = new Facetrain
+  own.options
+  .imagesDir __dirname + '/../faces'
+  .split [1, 0, 0]
+  .hidden 3
+  .output 4
+  .targetFunc (image) -> [0, 0, 0, 0]
+  own.init (err) ->
+    return cb err if err
+    cb null, own.imageSets[0]
+
+classifyTestExamples = (network, set, cb) ->
   network.classify set.path, (err) ->
-    throw err if err
-    results = network.imgClassifResults
-    for classif, i in results
-      classif.path = set.images[i].path
-    results.sort (a, b) -> a.error - b.error
-    console.log classif for classif in results
+    return cb err if err
+    results = util.getJoinedResults network, set, true
+    console.log results
 
     util.plotClassifs results, (err, dir) ->
-      throw err if err
+      return cb err if err
 
       interval = (a, b) ->
         list =
@@ -32,7 +41,6 @@ facetrain.train (err, network) ->
         return list.join ' '
 
       len = results.length
-      images = __dirname + '/../images'
 
       copyBad = ->
         ret = ''
@@ -55,4 +63,29 @@ facetrain.train (err, network) ->
         cp head-classif-* #{images}
         #{copyBad()}
         #{copyGood()}
-      """, (err) -> throw err if err
+      """, (err) ->
+        return cb err if err
+        cb()
+
+classifyOwn = (network, set, cb) ->
+  network.classify set.path, (err) ->
+    return cb err if err
+    results = util.getJoinedResults network, set, true
+    console.log results
+    util.plotClassifs results, (err, dir) ->
+      return cb err if err
+      commands = "cd #{dir}\nsleep 1\n"
+      for i in [0..3]
+        commands += "cp out#{i}.png #{images}/own-face-classif-#{i}.png\n"
+      util.sh commands, (err) ->
+        return cb err if err
+        cb()
+
+facetrain.train (err, network) ->
+  throw err if err
+  classifyTestExamples network, facetrain.imageSets[1], (err) ->
+    throw err if err
+    getOwn (err, ownSet) ->
+      throw err if err
+      classifyOwn network, ownSet, (err) ->
+        throw err if err

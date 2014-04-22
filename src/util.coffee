@@ -105,3 +105,11 @@ exports.plotClassif = (dir, i, classif, cb) ->
       convert -scale 256 plot#{i}.png plot-small-#{i}.png
       convert -append face#{i}.png plot-small-#{i}.png out#{i}.png
     """
+
+exports.getJoinedResults = (network, set, sort) ->
+  results = network.imgClassifResults
+  for classif, i in results
+    classif.path = set.images[i].path
+  if sort
+    results.sort (a, b) -> a.error - b.error
+  results

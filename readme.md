@@ -5,22 +5,15 @@ course][course]. This also includes the presentation.
 
 ## Navigation
 
-* **/bin** --- where the C binaries are built
-
-* **/code** --- the C sources (from the [CMU homework][cmu-face])
-
-* **/examples** --- examples for the project which are also used in the
+* **bin/** — where the C binaries are built
+* **code/** — the C sources (from the [CMU homework][cmu-face])
+* **examples/** — examples for the project which are also used in the
 presentation
-
-* **/faces** --- the provided image faces (from the [CMU homework][cmu-face])
-
-* **/lib** --- where the CoffeeScript files are built
-
-* **/presentation** --- the source of the presentation for the project
-
-* **/src** --- the CoffeeScript sources
-
-* **/tasks** --- the project requirements
+* **faces/** — the provided image faces (from the [CMU homework][cmu-face])
+* **lib/** — where the CoffeeScript files are built
+* **presentation/** — the source of the presentation for the project
+* **src/** — the CoffeeScript sources
+* **tasks/** — the project requirements
 
 ## Installation
 

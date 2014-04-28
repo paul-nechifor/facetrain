@@ -40,6 +40,14 @@ b = new Build task, config, (->),
     Build.browserify 'presentation/build/script.js',
       './presentation/script.coffee', config, cb
 
+  examples: (cb) ->
+    sh """
+      for f in `ls examples/scripts`; do
+        echo Running $f
+        coffee examples/scripts/$f
+      done
+    """, cb
+
   presentation: (cb) ->
     b.run ['clean', 'bower', 'copyReq', 'copyImages', 'stylus', 'jade',
       'script']
@@ -47,4 +55,5 @@ b = new Build task, config, (->),
 
 
 b.makePublic
+  examples: 'Run all the provided examples.'
   presentation: 'Build the presentation.'

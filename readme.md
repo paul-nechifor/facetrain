@@ -3,6 +3,8 @@
 My neural networks face training experiments homework for my [Machine Learning
 course][course]. This also includes the presentation.
 
+![Facetrain Experiments presentation cover](screenshot.png)
+
 ## Navigation
 
 * **bin/** — where the C binaries are built

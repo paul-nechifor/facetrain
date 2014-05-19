@@ -27,7 +27,7 @@ char *argv[];
 {
   char netname[256], trainname[256], test1name[256], test2name[256];
   IMAGELIST *trainlist, *test1list, *test2list;
-  int ind, epochs, seed, savedelta, interrupt, nHidden, nOutput;
+  int ind, epochs, seed, savedelta, interrupt, nHidden, nOutput, use_validation;
 
   seed = 102194;   /*** today's date seemed like a good default ***/
   epochs = 100;
@@ -36,6 +36,7 @@ char *argv[];
   interrupt = 0;
   nHidden = 4;
   nOutput = 1;
+  use_validation = 0;
   int classify = 0;
   int (*eval_func)(BPNN *net, double *err) = NULL;
 
@@ -68,6 +69,8 @@ char *argv[];
         case '1': strcpy(test1name, argv[++ind]);
                   break;
         case '2': strcpy(test2name, argv[++ind]);
+                  break;
+        case 'v': use_validation = 1;
                   break;
         case 'i': savedelta = 1;
             interrupt = 1;
@@ -114,15 +117,15 @@ char *argv[];
 
   /*** If we've got at least one image to train on, go train the net ***/
   backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-		  interrupt, nHidden, nOutput, eval_func, classify);
+		  interrupt, nHidden, nOutput, eval_func, classify, use_validation);
 
   exit(0);
 }
 
 backprop_face(trainlist, test1list, test2list, epochs, savedelta, netname,
-	  interrupt, nHidden, nOutput, eval_func, classify)
+	  interrupt, nHidden, nOutput, eval_func, classify, use_validation)
 IMAGELIST *trainlist, *test1list, *test2list;
-int epochs, savedelta, interrupt, nHidden, nOutput, classify;
+int epochs, savedelta, interrupt, nHidden, nOutput, classify, use_validation;
 char *netname;
 int (*eval_func)(BPNN *net, double *err);
 {
@@ -130,6 +133,8 @@ int (*eval_func)(BPNN *net, double *err);
   BPNN *net;
   int train_n, epoch, i, imgsize;
   double out_err, hid_err, sumerr;
+  int is_overfitting = 0;
+  double *validation_errors = (double *) malloc((epochs + 1) * sizeof (double));
 
   train_n = trainlist->n;
 
@@ -168,9 +173,9 @@ int (*eval_func)(BPNN *net, double *err);
 
   /*** Print out performance before any epochs have been completed. ***/
   printf("performance>>> 0 0.0 ");
-  performance_on_imagelist(net, trainlist, eval_func);
-  performance_on_imagelist(net, test1list, eval_func);
-  performance_on_imagelist(net, test2list, eval_func);
+  performance_on_imagelist(net, trainlist, eval_func, NULL);
+  performance_on_imagelist(net, test1list, eval_func, &validation_errors[0]);
+  performance_on_imagelist(net, test2list, eval_func, NULL);
   printf("\n");
   fflush(stdout);
 
@@ -188,17 +193,20 @@ int (*eval_func)(BPNN *net, double *err);
       /** Set up target vector for image i **/
       load_target(trainlist->list[i], net);
 
-      /** Run backprop, learning rate 0.3, momentum 0.3 **/
-      bpnn_train(net, 0.3, 0.3, &out_err, &hid_err);
+      if (!is_overfitting) {
+        /** Run backprop, learning rate 0.3, momentum 0.3 **/
+        bpnn_train(net, 0.3, 0.3, &out_err, &hid_err);
+      }
 
       sumerr += (out_err + hid_err);
     }
     printf("%g ", sumerr);
 
     /*** Evaluate performance on train, test, test2, and print perf ***/
-    performance_on_imagelist(net, trainlist, eval_func);
-    performance_on_imagelist(net, test1list, eval_func);
-    performance_on_imagelist(net, test2list, eval_func);
+    performance_on_imagelist(net, trainlist, eval_func, NULL);
+    performance_on_imagelist(net, test1list, eval_func,
+        &validation_errors[epoch]);
+    performance_on_imagelist(net, test2list, eval_func, NULL);
     printf("\n");  fflush(stdout);
 
     /*** Save network every 'savedelta' epochs ***/
@@ -213,6 +221,9 @@ int (*eval_func)(BPNN *net, double *err);
       getchar();
     }
 
+    if (use_validation && !is_overfitting && test1list->n > 0) {
+      is_overfitting = check_overfitting(validation_errors, epoch);
+    }
   }
   printf("\n"); fflush(stdout);
 
@@ -220,14 +231,17 @@ int (*eval_func)(BPNN *net, double *err);
   if (epochs > 0) {
     bpnn_save(net, netname);
   }
+
+  free(validation_errors);
 }
 
 /*** Computes the performance of a net on the images in the imagelist. ***/
 /*** Prints out the percentage correct on the image set, and the
      average error between the target and the output units for the set. ***/
-performance_on_imagelist(net, il, eval_func)
+performance_on_imagelist(net, il, eval_func, errRet)
 BPNN *net;
 IMAGELIST *il;
+double *errRet;
 int (*eval_func)(BPNN *net, double *err);
 {
   double err, val;
@@ -256,8 +270,15 @@ int (*eval_func)(BPNN *net, double *err);
   }
 
   err = err / (double) n;
+  if (errRet != NULL) {
+    *errRet = err;
+  }
 
   printf("%g %g ", ((double) correct / (double) n) * 100.0, err);
+}
+
+int check_overfitting(double *validation_errors, int epoch) {
+  return validation_errors[epoch] > validation_errors[epoch - 1];
 }
 
 void print_classification(BPNN *net, IMAGELIST *il,

@@ -47,6 +47,7 @@ module.exports = class Network
         '-2', @facetrain.imageSets[2].path
       ]
       args.push '-i' if @facetrain.vals.interrupt
+      args.push '-v' if @facetrain.vals.validate
       @runProgram args, cb
 
   classify: (setPath, cb) ->

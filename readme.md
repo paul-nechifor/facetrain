@@ -32,13 +32,13 @@ You also have to have gcc and python2.
 
 Install the project requirements and compile the C and CoffeeScript files:
 
-    npm install
+    yarn
 
 ## Development
 
 If you modify the CoffeeScript or C files rebuild them using:
 
-    npm run-script preinstall
+    yarn make
 
 To run one of the examples:
 
@@ -48,13 +48,13 @@ To run one of the examples:
 
 The presentation requires running all the provided examples:
 
-    cake examples
+    yarn examples
 
 This will take a lot of time.
 
 Build the presentation:
 
-    cake presentation
+    yarn presentation
 
 ## License (for my files)
 

@@ -1,3 +1,7 @@
+# This repository has been moved to [gitlab.com/paul-nechifor/facetrain](http://gitlab.com/paul-nechifor/facetrain).
+
+Old readme:
+
 # Facetrain Experiments
 
 My neural networks face training experiments homework for my [Machine Learning
